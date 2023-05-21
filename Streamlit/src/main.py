@@ -11,6 +11,10 @@ import helper
 import tempfile
 
 
+import imageio
+import numpy as np
+
+
 # Sidebar
 st.title("Crocodile Monitoring Dashboard")
 
@@ -111,82 +115,96 @@ elif source_radio == settings.VIDEO:
         
     No_crocs = []
         
-    if st.sidebar.button('Detect Video Objects'):
-        vid_cap = cv2.VideoCapture(filename)
-        stframe = st.empty()
-        while (vid_cap.isOpened()):
-            latest_iteration = st.empty()
+    # if st.sidebar.button('Detect Video Objects'):
+    #     vid_cap = cv2.VideoCapture(filename)
+    #     stframe = st.empty()
+    #     while (vid_cap.isOpened()):
+    #         latest_iteration = st.empty()
             
-            success, image = vid_cap.read()
-            if success:
+    #         success, image = vid_cap.read()
+    #         if success:
                 
-                image = cv2.resize(image, (720, int(720*(9/16))))
-                res = model.predict(image, conf=conf)
-                res_plotted = res[0].plot()
-                stframe.image(res_plotted,
-                              caption='Detected Video',
-                              channels="BGR",
-                              use_column_width=True)
+    #             image = cv2.resize(image, (720, int(720*(9/16))))
+    #             res = model.predict(image, conf=conf)
+    #             res_plotted = res[0].plot()
+    #             stframe.image(res_plotted,
+    #                           caption='Detected Video',
+    #                           channels="BGR",
+    #                           use_column_width=True)
             
-                No_crocs.append(res[0].boxes.shape[0])
+    #             No_crocs.append(res[0].boxes.shape[0])
                 
              
-                Ave_Croc = helper.Average(No_crocs)
-                Message = "Number of crocodiles: " + str(Ave_Croc)
-                latest_iteration.write(Message)
-                time.sleep(1)
-                latest_iteration.empty()
-  
-               
-      
-           
-            
-                    
-                        
-                    
-                
-                    
-      
-      
-                
+    #             Ave_Croc = helper.Average(No_crocs)
+    #             Message = "Number of crocodiles: " + str(Ave_Croc)
+    #             latest_iteration.write(Message)
+    #             time.sleep(1)
+    #             latest_iteration.empty()
+    
 
 
+    if st.sidebar.button('Detect Video Objects'):              
 
-elif source_radio == settings.RTSP:
-    source_rtsp = st.sidebar.text_input("rtsp stream url")
-    if st.sidebar.button('Detect Objects'):
-        vid_cap = cv2.VideoCapture(source_rtsp)
+        vid = imageio.get_reader(filename,  'ffmpeg')
         stframe = st.empty()
-        while (vid_cap.isOpened()):
-            success, image = vid_cap.read()
-            if success:
-                image = cv2.resize(image, (720, int(720*(9/16))))
-                res = model.predict(image, conf=conf)
-                res_plotted = res[0].plot()
-                stframe.image(res_plotted,
-                              caption='Detected Video',
-                              channels="BGR",
-                              use_column_width=True
-                              )
+        No_crocs = []
+        for num, image in enumerate(vid.iter_data()):
+            latest_iteration = st.empty()
 
-elif source_radio == settings.YOUTUBE:
-    source_youtube = st.sidebar.text_input("YouTube Video url")
-    if st.sidebar.button('Detect Objects'):
-        video = pafy.new(source_youtube)
-        best = video.getbest(preftype="mp4")
-        cap = cv2.VideoCapture(best.url)
-        stframe = st.empty()
-        while (cap.isOpened()):
-            success, image = cap.read()
-            if success:
-                image = cv2.resize(image, (720, int(720*(9/16))))
-                res = model.predict(image, conf=conf)
-                res_plotted = res[0].plot()
-                stframe.image(res_plotted,
-                              caption='Detected Video',
-                              channels="BGR",
-                              use_column_width=True
-                              )
+            image = cv2.resize(image, (720, int(720*(9/16))))
+            res = model.predict(image, conf=conf)
+            res_plotted = res[0].plot()
+            stframe.image(res_plotted,
+                            caption='Detected Video',
+                            channels="BGR",
+                            use_column_width=True)
+
+            No_crocs.append(res[0].boxes.shape[0])
+
+            Ave_Croc = helper.Average(No_crocs)
+            Message = "Number of crocodiles: " + str(Ave_Croc)
+            latest_iteration.write(Message)
+            time.sleep(0.05)  # Adjust sleep time to manage frame rate
+            latest_iteration.empty()
+
+    
+
+
+# elif source_radio == settings.RTSP:
+#     source_rtsp = st.sidebar.text_input("rtsp stream url")
+#     if st.sidebar.button('Detect Objects'):
+#         vid_cap = cv2.VideoCapture(source_rtsp)
+#         stframe = st.empty()
+#         while (vid_cap.isOpened()):
+#             success, image = vid_cap.read()
+#             if success:
+#                 image = cv2.resize(image, (720, int(720*(9/16))))
+#                 res = model.predict(image, conf=conf)
+#                 res_plotted = res[0].plot()
+#                 stframe.image(res_plotted,
+#                               caption='Detected Video',
+#                               channels="BGR",
+#                               use_column_width=True
+#                               )
+
+# elif source_radio == settings.YOUTUBE:
+#     source_youtube = st.sidebar.text_input("YouTube Video url")
+#     if st.sidebar.button('Detect Objects'):
+#         video = pafy.new(source_youtube)
+#         best = video.getbest(preftype="mp4")
+#         cap = cv2.VideoCapture(best.url)
+#         stframe = st.empty()
+#         while (cap.isOpened()):
+#             success, image = cap.read()
+#             if success:
+#                 image = cv2.resize(image, (720, int(720*(9/16))))
+#                 res = model.predict(image, conf=conf)
+#                 res_plotted = res[0].plot()
+#                 stframe.image(res_plotted,
+#                               caption='Detected Video',
+#                               channels="BGR",
+#                               use_column_width=True
+#                               )
 
 
 

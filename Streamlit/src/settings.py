@@ -17,10 +17,10 @@ ROOT = root_path.relative_to(Path.cwd())
 # Source
 IMAGE = 'Image'
 VIDEO = 'Video'
-RTSP = 'RTSP'
-YOUTUBE = 'YouTube'
+# RTSP = 'RTSP'
+# YOUTUBE = 'YouTube'
 
-SOURCES_LIST = [IMAGE, VIDEO, RTSP, YOUTUBE]
+SOURCES_LIST = [IMAGE, VIDEO]
 
 # images
 IMAGES_DIR = ROOT / 'images'
