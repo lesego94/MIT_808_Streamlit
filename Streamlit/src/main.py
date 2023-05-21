@@ -9,11 +9,11 @@ import os
 import settings
 import helper
 import tempfile
-
+import pandas as pd
 
 import imageio
 import numpy as np
-
+import base64
 
 # Sidebar
 st.title("Crocodile Monitoring Dashboard")
@@ -59,6 +59,8 @@ if source_radio == settings.IMAGE:
             image = PIL.Image.open(source_img)
             st.image(source_img, caption='Uploaded Image',
                      use_column_width=True)
+            
+    
 
     with col2:
         if source_img is None:
@@ -92,7 +94,9 @@ if source_radio == settings.IMAGE:
                 #     st.write("No image is uploaded yet!")
         
                 No_crocs = res[0].boxes.shape[0]
-                st.write("Number of Crocodiles",No_crocs)
+                st.write("Number of Crocodiles",No_crocs)               
+                
+                
 
                 
 elif source_radio == settings.VIDEO:
@@ -115,57 +119,116 @@ elif source_radio == settings.VIDEO:
         
     No_crocs = []
         
-    # if st.sidebar.button('Detect Video Objects'):
-    #     vid_cap = cv2.VideoCapture(filename)
-    #     stframe = st.empty()
-    #     while (vid_cap.isOpened()):
-    #         latest_iteration = st.empty()
+    if st.sidebar.button('Detect Video Objects'):
+        vid_cap = cv2.VideoCapture(filename)
+        stframe = st.empty()
+        while (vid_cap.isOpened()):
+            latest_iteration = st.empty()
             
-    #         success, image = vid_cap.read()
-    #         if success:
+            success, image = vid_cap.read()
+            if success:
                 
-    #             image = cv2.resize(image, (720, int(720*(9/16))))
-    #             res = model.predict(image, conf=conf)
-    #             res_plotted = res[0].plot()
-    #             stframe.image(res_plotted,
-    #                           caption='Detected Video',
-    #                           channels="BGR",
-    #                           use_column_width=True)
+                image = cv2.resize(image, (720, int(720*(9/16))))
+                res = model.predict(image, conf=conf)
+                res_plotted = res[0].plot()
+                stframe.image(res_plotted,
+                              caption='Detected Video',
+                              channels="BGR",
+                              use_column_width=True)
             
-    #             No_crocs.append(res[0].boxes.shape[0])
+                No_crocs.append(res[0].boxes.shape[0])
                 
              
-    #             Ave_Croc = helper.Average(No_crocs)
-    #             Message = "Number of crocodiles: " + str(Ave_Croc)
-    #             latest_iteration.write(Message)
-    #             time.sleep(1)
-    #             latest_iteration.empty()
+                Ave_Croc = helper.Average(No_crocs)
+                Message = "Number of crocodiles: " + str(Ave_Croc)
+                latest_iteration.write(Message)
+                time.sleep(1)
+                latest_iteration.empty()
+
+
     
+ # Initialize the dataframe
+df = pd.DataFrame(columns=['ID','Date','Image', 'Time', 'Latitude', 'Longitude'])
+   
+if 'dataframe' not in st.session_state:
+    st.session_state['dataframe'] = df
+if 'counter' not in st.session_state:
+    st.session_state['counter'] = 0
+
+if st.button('Add row'):
+    # Specify the values you want to append
+    new_row = {'ID': st.session_state['counter'],'Date':'12-04-2023','Image': 'image.jpg','Description': 'Kruger park may 4th' ,'Time': '2023-05-21 14:20:00', 'Latitude': 12.9715987, 'Longitude': 77.5945627, 'No of Crocodiles':3}
+
+    # Append the new row to the DataFrame
+
+    st.session_state['dataframe'] = pd.concat([st.session_state['dataframe'], pd.DataFrame([new_row])], ignore_index=True)
+    
+    # Increment the counter
+    st.session_state['counter'] += 1
 
 
-    if st.sidebar.button('Detect Video Objects'):              
 
-        vid = imageio.get_reader(filename,  'ffmpeg')
-        stframe = st.empty()
-        No_crocs = []
-        for num, image in enumerate(vid.iter_data()):
-            latest_iteration = st.empty()
+edited_df = st.experimental_data_editor(st.session_state['dataframe'], use_container_width=True,num_rows= "dynamic")
 
-            image = cv2.resize(image, (720, int(720*(9/16))))
-            res = model.predict(image, conf=conf)
-            res_plotted = res[0].plot()
-            stframe.image(res_plotted,
-                            caption='Detected Video',
-                            channels="BGR",
-                            use_column_width=True)
+@st.cache_data 
+def convert_df(df):
+    # IMPORTANT: Cache the conversion to prevent computation on every rerun
+    return df.to_csv().encode('utf-8')
 
-            No_crocs.append(res[0].boxes.shape[0])
+csv = convert_df(edited_df)
 
-            Ave_Croc = helper.Average(No_crocs)
-            Message = "Number of crocodiles: " + str(Ave_Croc)
-            latest_iteration.write(Message)
-            time.sleep(0.05)  # Adjust sleep time to manage frame rate
-            latest_iteration.empty()
+col1, col2 = st.columns(2)
+with col1:
+    st.download_button(
+        label="Download data as CSV",
+        data=csv,
+        file_name='Record.csv',
+        mime='text/csv',
+    )
+    
+with col2:
+    if st.button('Clear'):
+        st.session_state.dataframe = pd.DataFrame(columns=['ID', 'Image','Description', 'Time', 'Latitude', 'Longitude','No of Crocodiles'])
+        st.session_state.counter = 0
+
+
+# # Function to download dataframe as a csv file
+# def download_link(object_to_download, download_filename, download_link_text):
+#     if isinstance(object_to_download,pd.DataFrame):
+#         object_to_download = object_to_download.to_csv(index=False)
+
+#     # some strings <-> bytes conversions necessary here
+#     b64 = base64.b64encode(object_to_download.encode()).decode()
+
+#     return f'<a href="data:file/txt;base64,{b64}" download="{download_filename}">{download_link_text}</a>'
+
+# if st.button('Download Dataframe as CSV'):
+#     tmp_download_link = download_link(st.session_state.dataframe, 'dataframe.csv', 'Click here to download your data!')
+#     st.markdown(tmp_download_link, unsafe_allow_html=True)
+
+    # if st.sidebar.button('Detect Video Objects'):              
+
+    #     vid = imageio.get_reader(filename,  'ffmpeg')
+    #     stframe = st.empty()
+    #     No_crocs = []
+    #     for num, image in enumerate(vid.iter_data()):
+    #         latest_iteration = st.empty()
+
+    #         image = cv2.resize(image, (720, int(720*(9/16))))
+    #         res = model.predict(image, conf=conf)
+    #         res_plotted = res[0].plot()
+    #         stframe.image(res_plotted,
+    #                         caption='Detected Video',
+    #                         channels="BGR",
+    #                         use_column_width=True)
+
+    #         No_crocs.append(res[0].boxes.shape[0])
+
+    #         Ave_Croc = helper.Average(No_crocs)
+    #         Message = "Number of crocodiles: " + str(Ave_Croc)
+    #         latest_iteration.write(Message)
+    #         time.sleep(0.05)  # Adjust sleep time to manage frame rate
+    #         latest_iteration.empty()
 
     
 

@@ -53,3 +53,50 @@ SEGMENT_LOCATOR = 'segment'
 
 # Webcam
 WEBCAM_PATH = 0
+\
+
+
+import streamlit as st
+import pandas as pd
+from PIL import Image
+from PIL.ExifTags import TAGS, GPSTAGS
+
+# Function to handle the GPS metadata
+def get_geotagging(exif):
+    if not exif:
+        raise ValueError("No EXIF metadata found")
+
+    geotagging = {}
+    for (idx, tag) in TAGS.items():
+        if tag == 'GPSInfo':
+            if idx not in exif:
+                raise ValueError("No EXIF geotagging found")
+
+            for (t, val) in GPSTAGS.items():
+                if t in exif[idx]:
+                    geotagging[val] = exif[idx][t]
+
+    return geotagging
+
+# Function to handle the conversion of the coordinates
+def get_decimal_from_dms(dms, ref):
+
+    degrees = dms[0]
+    minutes = dms[1] / 60.0
+    seconds = dms[2] / 3600.0
+
+    if ref in ['S', 'W']:
+        degrees = -degrees
+        minutes = -minutes
+        seconds = -seconds
+
+    return round(degrees + minutes + seconds, 5)
+
+# Initialize the dataframe
+df = pd.DataFrame(columns=['Image', 'Timestamp', 'Latitude', 'Longitude'])
+
+uploaded_file = st.file_uploader("Upload Image", type=['jpg', 'png', 'jpeg'])
+
+if uploaded_file is not None:
+    image = Image.open(uploaded_file)
+   
