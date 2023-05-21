@@ -1,7 +1,2 @@
 libgl1
-freeglut3-dev
-libgtk2.0-dev
-libsm6
-libxrender1
-libfontconfig1
-libice6
+libgl1-mesa-glx
