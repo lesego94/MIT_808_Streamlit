@@ -157,7 +157,7 @@ if 'counter' not in st.session_state:
 
 if st.button('Add row'):
     # Specify the values you want to append
-    new_row = {'ID': st.session_state['counter'],'Date':'12-04-2023','Image': 'image.jpg','Description': 'Kruger park may 4th' ,'Time': '2023-05-21 14:20:00', 'Latitude': 12.9715987, 'Longitude': 77.5945627, 'No of Crocodiles':3}
+    new_row = {'ID': st.session_state['counter'],'Date':'12-04-2023','Image': source_img.name,'Description': 'Kruger park may 4th' ,'Time': '2023-05-21 14:20:00', 'Latitude': 12.9715987, 'Longitude': 77.5945627, 'No of Crocodiles':3}
 
     # Append the new row to the DataFrame
 
