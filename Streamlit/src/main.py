@@ -4,16 +4,19 @@ import time
 import streamlit as st
 import torch
 import cv2
-import pafy
+
 import os
 import settings
 import helper
 import tempfile
 import pandas as pd
 
-import imageio
+from PIL import Image
+
 import numpy as np
 import base64
+
+
 
 # Sidebar
 st.title("Crocodile Monitoring Dashboard")
@@ -21,12 +24,12 @@ st.title("Crocodile Monitoring Dashboard")
 st.sidebar.header("Settings")
 
 mlmodel_radio = st.sidebar.radio(
-    "Select Task", ['Segmentation','Detection (Pending)' ])
+    "Select Task", ['Detection','Individual Detection (Pending)' ])
 conf = float(st.sidebar.slider("Select Model Confidence", 25, 100, 40)) / 100
-if mlmodel_radio == 'Detection':
+if mlmodel_radio == 'Individual Detection (Pending)':
     dirpath_locator = settings.DETECT_LOCATOR
     model_path = Path(settings.DETECTION_MODEL)
-elif mlmodel_radio == 'Segmentation':
+elif mlmodel_radio == 'Detection':
     dirpath_locator = settings.SEGMENT_LOCATOR
     model_path = Path(settings.SEGMENTATION_MODEL)
 try:
@@ -40,7 +43,7 @@ st.sidebar.header("Image/Video Config")
 source_radio = st.sidebar.radio(
     "Select Source", settings.SOURCES_LIST)
 
-# body
+
 # If image is selected
 if source_radio == settings.IMAGE:
     source_img = st.sidebar.file_uploader(
@@ -77,21 +80,6 @@ if source_radio == settings.IMAGE:
                     res_plotted = res[0].plot()[:, :, ::-1]
                     st.image(res_plotted, caption='Detected Image',
                              use_column_width=True)
-                    # IMAGE_DOWNLOAD_PATH = f"runs/{dirpath_locator}/predict/image0.jpg"
-                    
-                    # with open(IMAGE_DOWNLOAD_PATH, 'rb') as fl:
-                    #     st.download_button("Download object-detected image",
-                    #                        data=fl,
-                    #                        file_name="image0.jpg", 
-                    #                        mime='image/jpg'
-                    #                        )
-                # try:
-                #     with st.expander("Detection Results"):
-                #         for box in boxes:
-                #             st.write(box.xywh)
-                # except Exception as ex:
-                #     # st.write(ex)
-                #     st.write("No image is uploaded yet!")
         
                 No_crocs = res[0].boxes.shape[0]
                 st.write("Number of Crocodiles",No_crocs)               
@@ -146,6 +134,15 @@ elif source_radio == settings.VIDEO:
                 latest_iteration.empty()
 
 
+
+
+# ...
+
+
+
+
+
+
     
  # Initialize the dataframe
 df = pd.DataFrame(columns=['ID','Date','Image', 'Time', 'Latitude', 'Longitude'])
@@ -157,7 +154,8 @@ if 'counter' not in st.session_state:
 
 if st.button('Add row'):
     # Specify the values you want to append
-    new_row = {'ID': st.session_state['counter'],'Date':'12-04-2023','Image': source_img.name,'Description': 'Kruger park may 4th' ,'Time': '2023-05-21 14:20:00', 'Latitude': 12.9715987, 'Longitude': 77.5945627, 'No of Crocodiles':3}
+    new_row = {'ID': st.session_state['counter'],'Date':'12-04-2023','Image': source_img.name,
+               'Description': 'Kruger park may 4th' ,'Time': '2023-05-21 14:20:00', 'Latitude': 12.9715987, 'Longitude': 77.5945627, 'No of Crocodiles':3}
 
     # Append the new row to the DataFrame
 
@@ -192,27 +190,7 @@ with col2:
         st.session_state.counter = 0
 
 
-# # Function to download dataframe as a csv file
-# def download_link(object_to_download, download_filename, download_link_text):
-#     if isinstance(object_to_download,pd.DataFrame):
-#         object_to_download = object_to_download.to_csv(index=False)
 
-#     # some strings <-> bytes conversions necessary here
-#     b64 = base64.b64encode(object_to_download.encode()).decode()
-
-#     return f'<a href="data:file/txt;base64,{b64}" download="{download_filename}">{download_link_text}</a>'
-
-# if st.button('Download Dataframe as CSV'):
-#     tmp_download_link = download_link(st.session_state.dataframe, 'dataframe.csv', 'Click here to download your data!')
-#     st.markdown(tmp_download_link, unsafe_allow_html=True)
-
-    # if st.sidebar.button('Detect Video Objects'):              
-
-    #     vid = imageio.get_reader(filename,  'ffmpeg')
-    #     stframe = st.empty()
-    #     No_crocs = []
-    #     for num, image in enumerate(vid.iter_data()):
-    #         latest_iteration = st.empty()
 
     #         image = cv2.resize(image, (720, int(720*(9/16))))
     #         res = model.predict(image, conf=conf)
