@@ -2,16 +2,14 @@ from pathlib import Path
 import time
 import streamlit as st
 import torch
-
-
+import cv2
+import PIL
 import os
 import settings
 import helper
 import tempfile
 import pandas as pd
-
 from PIL import Image
-from moviepy.editor import VideoFileClip
 import numpy as np
 
 
@@ -48,7 +46,7 @@ if source_radio == settings.IMAGE:
         "Choose an image...", type=("jpg", "jpeg", "png", 'bmp', 'webp'))
     save_radio = st.sidebar.radio("Save image to download", ["Yes", "No"])
     save = True if save_radio == 'Yes' else False
-    col1, col2 = st.columns(2)
+    col1, col2 = st.columns(2) 
 
     with col1:
         if source_img is None:
@@ -82,104 +80,57 @@ if source_radio == settings.IMAGE:
                 No_crocs = res[0].boxes.shape[0]
                 st.write("Number of Crocodiles",No_crocs)               
                 
-                
-
-                
-# elif source_radio == settings.VIDEO:
-    
-
-#     source_vid = st.sidebar.file_uploader("Upload a Video", type = ("mp4"),accept_multiple_files=False)
-    
-#     if source_vid is None:
-#         source_vid = open('videos/DJI_0411.mp4','rb')
-#         st.video(source_vid)
-#         filename = 'videos/DJI_0411.mp4'
-
-        
-#     else:
-
-#         st.video(source_vid)
-#         tfile = tempfile.NamedTemporaryFile(delete=False)
-#         tfile.write(source_vid.read())
-#         filename = tfile.name
-        
-#     No_crocs = []
-        
-#     if st.sidebar.button('Detect Video Objects'):
-#         vid_cap = cv2.VideoCapture(filename)
-#         stframe = st.empty()
-#         while (vid_cap.isOpened()):
-#             latest_iteration = st.empty()
             
-#             success, image = vid_cap.read()
-#             if success:
                 
-#                 image = cv2.resize(image, (720, int(720*(9/16))))
-#                 res = model.predict(image, conf=conf)
-#                 res_plotted = res[0].plot()
-#                 stframe.image(res_plotted,
-#                               caption='Detected Video',
-#                               channels="BGR",
-#                               use_column_width=True)
-            
-#                 No_crocs.append(res[0].boxes.shape[0])
-                
-             
-#                 Ave_Croc = helper.Average(No_crocs)
-#                 Message = "Number of crocodiles: " + str(Ave_Croc)
-#                 latest_iteration.write(Message)
-#                 time.sleep(1)
-#                 latest_iteration.empty()
-
-
 elif source_radio == settings.VIDEO:
-    source_vid = st.sidebar.file_uploader("Upload a Video", type=("mp4"), accept_multiple_files=False)
+    
+
+    source_vid = st.sidebar.file_uploader("Upload a Video", type = ("mp4"),accept_multiple_files=False)
     
     if source_vid is None:
-        source_vid = open('videos/DJI_0411.mp4','rb')
+        source_vid = open('../lib/Examples/videos/DJI_0411.mp4','rb')
         st.video(source_vid)
-        filename = 'videos/DJI_0411.mp4'
+        filename = '../lib/Examples/videos/DJI_0411.mp4'
+
+        
     else:
+
         st.video(source_vid)
         tfile = tempfile.NamedTemporaryFile(delete=False)
         tfile.write(source_vid.read())
         filename = tfile.name
-
+        
     No_crocs = []
         
     if st.sidebar.button('Detect Video Objects'):
-        vid_clip = VideoFileClip(filename)
+        vid_cap = cv2.VideoCapture(filename)
         stframe = st.empty()
-        
-        for i, frame in enumerate(vid_clip.iter_frames()):  
+        while (vid_cap.isOpened()):
             latest_iteration = st.empty()
             
-            pil_image = Image.fromarray(frame)  # Convert the image to a PIL Image object.
-            pil_image = pil_image.resize((720, int(720*(9/16))), Image.ANTIALIAS)  # Resize the image.
-            image = np.array(pil_image)  # Convert the image back to a numpy array.
-
-            # MoviePy's iter_frames returns RGB frames, so no need to convert RGB to BGR.
-
-            res = model.predict(image, conf=conf)
-            res_plotted = res[0].plot()
-            stframe.image(res_plotted,
-                          caption='Detected Video',
-                          channels="RGB",
-                          use_column_width=True)
-        
-            No_crocs.append(res[0].boxes.shape[0])
+            success, image = vid_cap.read()
+            if success:
+                
+                image = cv2.resize(image, (720, int(720*(9/16))))
+                res = model.predict(image, conf=conf)
+                res_plotted = res[0].plot()
+                stframe.image(res_plotted,
+                              caption='Detected Video',
+                              channels="BGR",
+                              use_column_width=True)
             
-            Ave_Croc = helper.Average(No_crocs)
-            Message = "Number of crocodiles: " + str(Ave_Croc)
-            latest_iteration.write(Message)
-            time.sleep(1)
-            latest_iteration.empty()
+                No_crocs.append(res[0].boxes.shape[0])
+                
+             
+                Ave_Croc = helper.Average(No_crocs)
+                Message = "Number of crocodiles: " + str(Ave_Croc)
+                latest_iteration.write(Message)
+                time.sleep(1)
+                latest_iteration.empty()
 
-# ...
 
 
-
-
+ 
 
 
     
