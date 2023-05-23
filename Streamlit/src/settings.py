@@ -15,8 +15,8 @@ import os
 # # Get the relative path of the root directory with respect to the current working directory
 # ROOT = root_path.relative_to(Path.cwd())
 
-current_dir = os.getcwd() 
-ROOT = os.path.dirname(current_dir)
+ROOT  = current_dir = os.getcwd() 
+# ROOT = os.path.dirname(current_dir)
 
 
 # Source
@@ -28,7 +28,7 @@ VIDEO = 'Video'
 SOURCES_LIST = [IMAGE, VIDEO]
 
 # images
-IMAGES_DIR = f"{ROOT}/lib/Examples/images/"
+IMAGES_DIR = f"{ROOT}/lib/Examples/images"
 DEFAULT_IMAGE = f'{IMAGES_DIR}/example_2.png'
 DEFAULT_DETECT_IMAGE = f'{IMAGES_DIR}/croc_detected.jpeg'
 

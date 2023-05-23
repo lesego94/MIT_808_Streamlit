@@ -88,9 +88,9 @@ elif source_radio == settings.VIDEO:
     source_vid = st.sidebar.file_uploader("Upload a Video", type = ("mp4"),accept_multiple_files=False)
     
     if source_vid is None:
-        source_vid = open('../lib/Examples/videos/DJI_0411.mp4','rb')
+        source_vid = open('./lib/Examples/videos/DJI_0411.mp4','rb')
         st.video(source_vid)
-        filename = '../lib/Examples/videos/DJI_0411.mp4'
+        filename = './lib/Examples/videos/DJI_0411.mp4'
 
         
     else:
