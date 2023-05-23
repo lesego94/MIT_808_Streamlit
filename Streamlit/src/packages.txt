@@ -1,4 +1,3 @@
 libgl1-mesa-de
 ffmpeg
-libsm6
-libxext6
+
