@@ -51,8 +51,6 @@ if source_radio == settings.IMAGE:
     # Upload an image of specified formats
     source_img = st.sidebar.file_uploader(
         "Choose an image...", type=("jpg", "jpeg", "png", 'bmp', 'webp'))
-    save_radio = st.sidebar.radio("Save image to download", ["Yes", "No"])
-    save = True if save_radio == 'Yes' else False
     col1, col2 = st.columns(2) 
 
     with col1:
@@ -78,7 +76,7 @@ if source_radio == settings.IMAGE:
             if st.sidebar.button('Detect Objects'):
                 with torch.no_grad():
                     res = model.predict(
-                        source = image, save=save, save_txt=save, exist_ok=True, conf=conf, project =f"runs/{dirpath_locator}/predict/image.jpeg")
+                        source = image, exist_ok=True, conf=conf, project =f"runs/{dirpath_locator}/predict/image.jpeg")
                     boxes = res[0].boxes
                     res_plotted = res[0].plot()[:, :, ::-1]
                     st.image(res_plotted, caption='Detected Image',
