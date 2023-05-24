@@ -2,21 +2,8 @@ from pathlib import Path
 import sys
 import os 
 
-# # Get the absolute path of the current file
-# file_path = Path(__file__).resolve()
 
-# # Get the parent directory of the current file
-# root_path = file_path.parent
-
-# # Add the root path to the sys.path list if it is not already there
-# if root_path not in sys.path:
-#     sys.path.append(str(root_path))
-
-# # Get the relative path of the root directory with respect to the current working directory
-# ROOT = root_path.relative_to(Path.cwd())
-
-# current_dir = os.getcwd() 
-
+# Get the relative path of the root directory with respect to the current working directory
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Source
@@ -51,47 +38,3 @@ SEGMENT_LOCATOR = 'segment'
 
 
 
-import streamlit as st
-import pandas as pd
-from PIL import Image
-from PIL.ExifTags import TAGS, GPSTAGS
-
-# Function to handle the GPS metadata
-def get_geotagging(exif):
-    if not exif:
-        raise ValueError("No EXIF metadata found")
-
-    geotagging = {}
-    for (idx, tag) in TAGS.items():
-        if tag == 'GPSInfo':
-            if idx not in exif:
-                raise ValueError("No EXIF geotagging found")
-
-            for (t, val) in GPSTAGS.items():
-                if t in exif[idx]:
-                    geotagging[val] = exif[idx][t]
-
-    return geotagging
-
-# Function to handle the conversion of the coordinates
-def get_decimal_from_dms(dms, ref):
-
-    degrees = dms[0]
-    minutes = dms[1] / 60.0
-    seconds = dms[2] / 3600.0
-
-    if ref in ['S', 'W']:
-        degrees = -degrees
-        minutes = -minutes
-        seconds = -seconds
-
-    return round(degrees + minutes + seconds, 5)
-
-# Initialize the dataframe
-df = pd.DataFrame(columns=['Image', 'Timestamp', 'Latitude', 'Longitude'])
-
-uploaded_file = st.file_uploader("Upload Image", type=['jpg', 'png', 'jpeg'])
-
-if uploaded_file is not None:
-    image = Image.open(uploaded_file)
-   

@@ -1,0 +1,25 @@
+# Use the Python3.8 image
+FROM python:3.9.5-slim-buster
+
+# Install dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    curl \
+    ca-certificates
+
+# Install PyTorch and torchvision
+RUN pip install --pre torch torchvision --extra-index-url https://download.pytorch.org/whl/nightly/cpu
+
+# Install Streamlit and other dependencies
+COPY requirements.txt /app/
+RUN pip install -r /app/requirements.txt
+
+# Streamlit-specific commands
+COPY . /app/
+WORKDIR /app
+
+# Expose the Streamlit port
+EXPOSE 8501
+
+# Run the app
+CMD streamlit run main.py
