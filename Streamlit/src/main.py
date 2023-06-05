@@ -10,7 +10,9 @@ import helper
 import tempfile
 import pandas as pd
 from PIL import Image
+
 import numpy as np
+import piexif
 
 # Streamlit title for the dashboard
 st.title("Crocodile Monitoring Dashboard")
@@ -73,14 +75,13 @@ if source_radio == settings.IMAGE:
             st.image(default_detected_image_path, caption='Detected Image',
                      use_column_width=True)
         else:
-            if st.sidebar.button('Detect Objects'):
-                with torch.no_grad():
-                    res = model.predict(
-                        source = image, exist_ok=True, conf=conf, project =f"runs/{dirpath_locator}/predict/image.jpeg")
-                    boxes = res[0].boxes
-                    res_plotted = res[0].plot()[:, :, ::-1]
-                    st.image(res_plotted, caption='Detected Image',
-                             use_column_width=True)
+            with torch.no_grad():
+                res = model.predict(
+                    source = image, exist_ok=True, conf=conf, project =f"runs/{dirpath_locator}/predict/image.jpeg")
+                boxes = res[0].boxes
+                res_plotted = res[0].plot()[:, :, ::-1]
+                st.image(res_plotted, caption='Detected Image',
+                            use_column_width=True)
         
                 No_crocs = res[0].boxes.shape[0]
                 st.write("Number of Crocodiles",No_crocs)               
@@ -151,17 +152,18 @@ if 'counter' not in st.session_state:
 # Check if an image has been uploaded
 if source_img is not None:
     # If an image has been uploaded, create the 'Add row' button
-    if st.button('Add row'):        
+    if st.button('Add row'):
+        Lat, Long = helper.get_coordinates(image)        
 
         # Specify the values you want to append
         new_row = {
             'ID': st.session_state['counter'],
             'Date':helper.get_Date(),
             'Image': source_img.name,
-            'Description': 'Kruger park may 4th',
+            'Description': ' ',
             'Time': helper.get_SA_Time(),
-            'Latitude': 12.9715987,
-            'Longitude': 77.5945627,
+            'Latitude': Lat ,
+            'Longitude': Long,
             'No of Crocodiles':3
         }    
 
