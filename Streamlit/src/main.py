@@ -83,7 +83,7 @@ if source_radio == settings.IMAGE:
                      use_column_width=True)
         else:
             with torch.no_grad():
-                res = helper.inference(temp_path,conf)
+                res = helper.inference(temp_path,conf,source_img)
                 os.unlink(temp_path)
                 boxes = res[0].boxes
                 res_plotted = res[0].plot()[:, :, ::-1]
@@ -150,6 +150,7 @@ if 'dataframe' not in st.session_state:
     st.session_state['dataframe'] = df
 if 'counter' not in st.session_state:
     st.session_state['counter'] = 0
+
 
  
 

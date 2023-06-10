@@ -7,7 +7,7 @@ from PIL import Image, ExifTags
 import settings
 import time
 import random
-
+import shutil
 
 def load_model(model_path):
     model = YOLO(model_path)
@@ -91,8 +91,17 @@ def create_video_from_image(image_path, video_name):
     video.release()
 
 
-def inference(image,conf):    
+def inference(image,conf,uploaded_file):   
+    save_crop = Check_newfile(uploaded_file) 
     model = load_model(settings.SEGMENTATION_MODEL)
-    res = model.predict(source = image,conf=conf, project = settings.IMAGE_SEGMENTS,save_crop =True)
+    res = model.predict(source = image,conf=conf, project = settings.IMAGE_SEGMENTS,save_crop =save_crop)
     return res
 
+def Check_newfile(uploaded_file):  
+    # Check if this is a new file
+    if 'last_file' not in st.session_state or st.session_state.last_file != uploaded_file:
+        st.session_state['last_file'] = uploaded_file
+        return True
+    else:
+        return False
+        
