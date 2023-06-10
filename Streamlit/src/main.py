@@ -64,8 +64,10 @@ if source_radio == settings.IMAGE:
                      use_column_width=True)
         else:
             image = PIL.Image.open(source_img)
+            # Get the file extension of the uploaded file
+            _, file_extension = os.path.splitext(source_img.name)
             # Create a temporary file with .jpg extension
-            with tempfile.NamedTemporaryFile(suffix=".jpg", delete=False) as f:
+            with tempfile.NamedTemporaryFile(suffix=file_extension, delete=False) as f:
                 temp_path = f.name
             # Save the uploaded image to this temporary file
             image.save(temp_path)                
