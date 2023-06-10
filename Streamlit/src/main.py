@@ -14,6 +14,7 @@ from PIL import Image
 import numpy as np
 import piexif
 
+
 # Streamlit title for the dashboard
 st.title("Crocodile Monitoring Dashboard")
 
@@ -63,6 +64,12 @@ if source_radio == settings.IMAGE:
                      use_column_width=True)
         else:
             image = PIL.Image.open(source_img)
+            # Create a temporary file with .jpg extension
+            with tempfile.NamedTemporaryFile(suffix=".jpg", delete=False) as f:
+                temp_path = f.name
+            # Save the uploaded image to this temporary file
+            image.save(temp_path)                
+            
             st.image(source_img, caption='Uploaded Image',
                      use_column_width=True)
             
@@ -76,8 +83,8 @@ if source_radio == settings.IMAGE:
                      use_column_width=True)
         else:
             with torch.no_grad():
-                res = model.predict(
-                    source = image, exist_ok=True, conf=conf, project =f"runs/{dirpath_locator}/predict/image.jpeg")
+                res = helper.inference(temp_path,conf)
+                os.unlink(temp_path)
                 boxes = res[0].boxes
                 res_plotted = res[0].plot()[:, :, ::-1]
                 st.image(res_plotted, caption='Detected Image',
@@ -86,7 +93,7 @@ if source_radio == settings.IMAGE:
                 No_crocs = res[0].boxes.shape[0]
                 st.write("Number of Crocodiles",No_crocs)               
                 
-            
+
                 
 elif source_radio == settings.VIDEO:
     
