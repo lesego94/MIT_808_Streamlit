@@ -8,9 +8,9 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Source
 IMAGE = 'Image'
-VIDEO = 'Video'
 
-SOURCES_LIST = [IMAGE, VIDEO]
+
+SOURCES_LIST = [IMAGE]
 
 # images
 IMAGES_DIR = os.path.join(ROOT, 'lib', 'Examples', 'images')
@@ -29,7 +29,7 @@ VIDEOS_DICT = {
 
 # model
 MODEL_DIR = os.path.join(ROOT, 'lib', 'models', 'weights')
-DETECTION_MODEL = os.path.join(MODEL_DIR, 'yolov8n.pt')
+DETECTION_MODEL = os.path.join(MODEL_DIR, '230610_154756.single_instance')
 SEGMENTATION_MODEL = os.path.join(MODEL_DIR, 'best.pt')
 
 # Detected/segmented image dirpath locator

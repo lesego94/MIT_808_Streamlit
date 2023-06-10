@@ -8,6 +8,9 @@ import settings
 import time
 import random
 import shutil
+import sleap
+import io
+import matplotlib.pyplot as plt
 
 def load_model(model_path):
     model = YOLO(model_path)
@@ -105,3 +108,19 @@ def Check_newfile(uploaded_file):
     else:
         return False
         
+ 
+    
+def sleap_predictor(image_path):
+    predictor = sleap.load_model([settings.DETECTION_MODEL])
+    image = sleap.load_video(image_path)
+    labels = predictor.predict(image)
+    # Plot the first labeled frame
+    
+    fig = plt.figure()
+    labels[0].plot(scale=1)
+
+    with io.BytesIO() as buf:
+        plt.savefig(buf, format='png')
+        buf.seek(0)
+        pil_img = Image.open(buf)
+        st.image(pil_img, caption='Labeled Frame')

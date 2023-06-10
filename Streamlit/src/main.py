@@ -50,7 +50,7 @@ source_radio = st.sidebar.radio(
 
 
 # If image is selected
-if source_radio == settings.IMAGE:
+if mlmodel_radio == 'Detection':
     # Upload an image of specified formats
     source_img = st.sidebar.file_uploader(
         "Choose an image...", type=("jpg", "jpeg", "png", 'bmp', 'webp'))
@@ -97,52 +97,31 @@ if source_radio == settings.IMAGE:
                 
 
                 
-elif source_radio == settings.VIDEO:
-    
+if mlmodel_radio == 'Individual Detection (Pending)':
+    # Get list of all subdirectories
+    main_dir = settings.IMAGE_SEGMENTS
+    subdirs = [subdir for subdir in os.listdir(main_dir) if os.path.isdir(os.path.join(main_dir, subdir))]
 
-    source_vid = st.sidebar.file_uploader("Upload a Video", type = ("mp4"),accept_multiple_files=False)
-    
-    if source_vid is None:
-        source_vid = open(settings.VIDEO_1_PATH, 'rb')
-        st.video(source_vid)
-        filename = settings.VIDEO_1_PATH
+    # Dropdown to select the subdirectory
+    selected_subdir = st.selectbox('Select a subdirectory', subdirs)
 
+    # Get list of all images in the selected subdirectory
+    image_dir1 = os.path.join(main_dir, selected_subdir)
+    image_dir = os.path.join(image_dir1,'crops/Crocodiles/')
+    image_files = [img for img in os.listdir(image_dir) if img.endswith(('.jpg', '.jpeg', '.png', '.bmp', '.webp'))]
+
+    # Dropdown to select the image
+    selected_image = st.selectbox('Select an image', image_files)
+
+    # Display the selected image
+    if selected_image:
+        image_path = os.path.join(image_dir, selected_image)
+        image = Image.open(image_path)
+        st.image(image, caption=selected_image)
+
+    if st.button("Identify!"):
+        helper.sleap_predictor(image_path)
         
-    else:
-
-        st.video(source_vid)
-        tfile = tempfile.NamedTemporaryFile(delete=False)
-        tfile.write(source_vid.read())
-        filename = tfile.name
-        
-    No_crocs = []
-        
-    if st.sidebar.button('Detect Video Objects'):
-        vid_cap = cv2.VideoCapture(filename)
-        stframe = st.empty()
-        while (vid_cap.isOpened()):
-            latest_iteration = st.empty()
-            
-            success, image = vid_cap.read()
-            if success:
-                
-                image = cv2.resize(image, (720, int(720*(9/16))))
-                res = model.predict(image, conf=conf)
-                res_plotted = res[0].plot()
-                stframe.image(res_plotted,
-                              caption='Detected Video',
-                              channels="BGR",
-                              use_column_width=True)
-            
-                No_crocs.append(res[0].boxes.shape[0])
-                
-             
-                Ave_Croc = helper.Average(No_crocs)
-                Message = "Number of crocodiles: " + str(Ave_Croc)
-                latest_iteration.write(Message)
-                time.sleep(1)
-                latest_iteration.empty()
-
 
     
  # Initialize the dataframe
