@@ -16,15 +16,15 @@ Each grid cell predicts multiple bounding boxes and class probabilities for thos
 
 ### SLEAP Framework
 
-SLEAP is a deep learning framework designed for estimating animal poses. It is a multi-animal pose tracker that uses a bottom-up approach to estimate poses, meaning it first detects body parts and then assembles them into complete poses. 
+SLEAP is a deep learning framework designed for estimating animal poses. It is a multi-animal pose tracker that uses a top-down, bottom-up and single-animal approachs to estimate poses, meaning it first detects body parts and then assembles them into complete poses. 
 
 SLEAP uses a combination of deep neural networks for the task: a centroid detector network to identify instances of animals and a part detector network to identify the body parts. The identified body parts and animal instances are then combined to generate the final pose estimation.
 
-In the context of the crocodile detection model, SLEAP can be used to estimate and track the pose of detected crocodiles, which could provide additional insights such as behavior analysis, tracking individual animals, etc.
+In the context of the crocodile detection model, SLEAP can be used to estimate and track the pose of detected crocodiles, which could provide additional insights such as behavior analysis, as well as possible animal identification.
 
 ## Usage
 
-This model is expected to be used as a part of a wildlife monitoring or research system, providing real-time insights into the presence and behavior of crocodiles in a given area. Possible applications include wildlife conservation, biodiversity studies, and behavior analysis.
+This model is expected to be used as a part of a wildlife monitoring or research system, providing insights into the presence and behavior of crocodiles in a given area. Possible applications include wildlife conservation, biodiversity studies, and behavior analysis.
 
 ## Limitations and Considerations
 
@@ -36,12 +36,38 @@ While YOLOv8 and SLEAP are highly powerful and versatile tools, there are a few 
 
 3. SLEAP's pose estimation capability assumes a certain level of visibility of the animal's body parts. If the crocodile is partially obscured or if the image quality is poor, accurate pose estimation might be challenging.
 
-4. This model does not inherently include an ability to differentiate between individual crocodiles. If this functionality is needed, additional steps like animal re-identification techniques may be required. 
+4. This model does not inherently include an ability to differentiate between individual crocodiles. For this functionality, additional steps are taken to compare the ratios of crocodiles limbs to that of a database, such a database still needs to be built.
 
 ## Future Enhancements
 
-1. Incorporating a mechanism to differentiate between individual crocodiles can significantly enhance the system’s utility, especially for long-term behavior and population studies.
+1. Incorporating a mechanism to differentiate between individual crocodiles can significantly enhance the system’s utility, especially for long-term behavior and population studies, to achieve this, more specimens are required to build a database as well as further train the model.
 
 2. Integrating this model with other sensors or data sources (e.g., thermal imaging, environmental data) could provide richer context and improve detection performance.
 
-3. Training the model on additional classes (e.g., other animals, humans) could be valuable for more comprehensive monitoring of the environment.
+3. Training the model on additional classes (e.g., other animals) could be valuable for more comprehensive monitoring of the environment.
+
+## Installation
+
+1. To install on a windows device clone this repo to you local computer.
+2. Ensure that python version 3.9 is installed on your system.
+3. Run the **start_app.bat** file, this fill will install all the required dependencies if they are not installed already, and then launch the dashboard.
+
+## Dashboard Usage
+
+1. Upload an image in any of the following formats: jpg, jpeg, png, bmp, webp,tif.
+2. Once an image is uploaded, begin with the "detection" task. Set the detection confidence using the slider, default is 60%.
+
+   <img src="image-1.png" alt="Alt text" width="200"/>
+   
+3. Inference is done automatically once an image is uploaded, crocodiles are detected, and the number there of displayed.
+ <img src="image.png" alt="Alt text" width="400"/>
+1. Clicking "Add row" will pull metadata from the uploaded image and add it to the editable table. 
+2. User can remove the image, and do inference on additional images, and compile the table. Once complete, the table can be downloaded as a csv file for further analysis.
+3. .tif files are large and handled differently. The file is split into several smaller images, but only a subsection is displayed on the dashboard. 
+ <img src="image-2.png" alt="Alt text" width="400"/>
+ Using the control buttons, the user can move across the large tif file. On the left hand side is the origian file, and on the right hand side is the images with detected crocodiles. 
+1. Pressing the **save Image** button will save the full image file as a .jpg and a .tif to the following directory: ~/lib/Output/
+
+7. Switching to the experimental **Indvidual Detection** task. The user can select from the list of crocodiles detected  obtained the earlier detection task from the drop down list. 
+8. The **Estimate Pose** button will run a pose estimation on the image, and the results are tabulated.
+<img src="image-3.png" alt="Alt text" width="400"/>
