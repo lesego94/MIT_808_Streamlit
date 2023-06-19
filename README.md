@@ -66,6 +66,6 @@ While YOLOv8 and SLEAP are highly powerful and versatile tools, there are a few 
  <img src="image-2.png" alt="Alt text" width="400"/>
 7. Using the control buttons, the user can move across the large tif file. On the left-hand side is the original file, and on the right-hand side are the images with detected crocodiles. <br> 
 8. Pressing the **save Image** button will save the full image file as a .jpg and a .tif to the following directory: ~/lib/Output/ <br> 
-10. Switching to the experimental **Individual Detection** task. The user can select from the list of crocodiles detected  obtained from the earlier detection task from the drop-down list.  <br> 
-11. The **Estimate Pose** button will run a pose estimation on the image, and the results are tabulated. <br> 
+9. Switching to the experimental **Individual Detection** task. The user can select from the list of crocodiles detected  obtained from the earlier detection task from the drop-down list.  <br> 
+10. The **Estimate Pose** button will run a pose estimation on the image, and the results are tabulated. <br> 
 <img src="image-3.png" alt="Alt text" width="400"/>
