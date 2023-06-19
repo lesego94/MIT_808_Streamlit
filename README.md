@@ -16,7 +16,7 @@ Each grid cell predicts multiple bounding boxes and class probabilities for thos
 
 ### SLEAP Framework
 
-SLEAP is a deep learning framework designed for estimating animal poses. It is a multi-animal pose tracker that uses a top-down, bottom-up and single-animal approaches to estimate poses, meaning it first detects body parts and then assembles them into complete poses. 
+SLEAP is a deep learning framework designed for estimating animal poses. It is a multi-animal pose tracker that uses a top-down, bottom-up and single-animal approach to estimate poses, meaning it first detects body parts and then assembles them into complete poses. 
 
 SLEAP uses a combination of deep neural networks for the task: a centroid detector network to identify instances of animals and a part detector network to identify the body parts. The identified body parts and animal instances are then combined to generate the final pose estimation.
 
