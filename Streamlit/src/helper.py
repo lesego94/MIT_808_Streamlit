@@ -113,7 +113,13 @@ def sleap_predictor(image_path):
         
     return labels
 
-        
+def key_table(labels):
+    instance = labels[0][0]
+    pts = instance.numpy()
+    Pose_table = pd.DataFrame({'key-points': ['Snout', 'UB', 'MB', 'LB', 'UBL', 'UBR', 'LBL', 'LBR'],
+                        'x-cord': [pts[0][0],pts[1][0],pts[2][0],pts[3][0],pts[4][0],pts[5][0],pts[6][0],pts[7][0]],
+                        'y-coord': [pts[0][1],pts[1][1],pts[2][1],pts[3][1],pts[4][1],pts[5][1],pts[6][1],pts[7][1]]}).round(1)
+    return Pose_table
 
 def split_tif_image(source_img, desired_size=640):
     

@@ -26,7 +26,7 @@ mlmodel_radio = st.sidebar.radio(
     "Select Task", ['Detection','Individual Detection' ])
 
 # Sidebar slider for adjusting the model's confidence level
-conf = float(st.sidebar.slider("Select Model Confidence", 25, 100, 40)) / 100
+conf = float(st.sidebar.slider("Select Model Confidence", 25, 100, 60)) / 100
 
 # Set up paths for models based on the selected task
 if mlmodel_radio == 'Individual Detection':
