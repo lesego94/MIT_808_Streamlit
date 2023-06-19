@@ -16,7 +16,7 @@ Each grid cell predicts multiple bounding boxes and class probabilities for thos
 
 ### SLEAP Framework
 
-SLEAP is a deep learning framework designed for estimating animal poses. It is a multi-animal pose tracker that uses a top-down, bottom-up and single-animal approachs to estimate poses, meaning it first detects body parts and then assembles them into complete poses. 
+SLEAP is a deep learning framework designed for estimating animal poses. It is a multi-animal pose tracker that uses a top-down, bottom-up and single-animal approaches to estimate poses, meaning it first detects body parts and then assembles them into complete poses. 
 
 SLEAP uses a combination of deep neural networks for the task: a centroid detector network to identify instances of animals and a part detector network to identify the body parts. The identified body parts and animal instances are then combined to generate the final pose estimation.
 
@@ -36,19 +36,19 @@ While YOLOv8 and SLEAP are highly powerful and versatile tools, there are a few 
 
 3. SLEAP's pose estimation capability assumes a certain level of visibility of the animal's body parts. If the crocodile is partially obscured or if the image quality is poor, accurate pose estimation might be challenging.
 
-4. This model does not inherently include an ability to differentiate between individual crocodiles. For this functionality, additional steps are taken to compare the ratios of crocodiles limbs to that of a database, such a database still needs to be built.
+4. This model does not inherently include an ability to differentiate between individual crocodiles. For this functionality, additional steps are taken to compare the ratios of crocodile limbs to that of a database, such a database still needs to be built.
 
 ## Future Enhancements
 
 1. Incorporating a mechanism to differentiate between individual crocodiles can significantly enhance the system’s utility, especially for long-term behavior and population studies, to achieve this, more specimens are required to build a database as well as further train the model.
 
-2. Integrating this model with other sensors or data sources (e.g., thermal imaging, environmental data) could provide richer context and improve detection performance.
+2. Integrating this model with other sensors or data sources (e.g., thermal imaging, and environmental data) could provide richer context and improve detection performance.
 
 3. Training the model on additional classes (e.g., other animals) could be valuable for more comprehensive monitoring of the environment.
 
 ## Installation
 
-1. To install on a windows device clone this repo to you local computer.
+1. To install on a Windows device clone this repo to you local computer.
 2. Ensure that python version 3.9 is installed on your system.
 3. Run the **start_app.bat** file, this fill will install all the required dependencies if they are not installed already, and then launch the dashboard.
 
