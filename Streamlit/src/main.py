@@ -23,13 +23,13 @@ st.sidebar.header("Settings")
 
 # Sidebar option for selecting the task, it can be 'Detection' or 'Individual Detection'
 mlmodel_radio = st.sidebar.radio(
-    "Select Task", ['Detection','Individual Detection (Pending)' ])
+    "Select Task", ['Detection','Individual Detection' ])
 
 # Sidebar slider for adjusting the model's confidence level
 conf = float(st.sidebar.slider("Select Model Confidence", 25, 100, 40)) / 100
 
 # Set up paths for models based on the selected task
-if mlmodel_radio == 'Individual Detection (Pending)':
+if mlmodel_radio == 'Individual Detection':
     dirpath_locator = settings.DETECT_LOCATOR
     model_path = Path(settings.DETECTION_MODEL)
 elif mlmodel_radio == 'Detection':
@@ -53,9 +53,27 @@ source_radio = st.sidebar.radio(
 if mlmodel_radio == 'Detection':
     # Upload an image of specified formats
     source_img = st.sidebar.file_uploader(
-        "Choose an image...", type=("jpg", "jpeg", "png", 'bmp', 'webp'))
+        "Choose an image...", type=("jpg", "jpeg", "png", 'bmp', 'webp','tif'))
     col1, col2 = st.columns(2) 
 
+    # with col1:
+    #     if source_img is None:
+    #         default_image_path = str(settings.DEFAULT_IMAGE)
+    #         image = PIL.Image.open(default_image_path)
+    #         st.image(default_image_path, caption='Default Image',
+    #                  use_column_width=True)
+    #     else:
+    #         image = PIL.Image.open(source_img)
+    #         # Get the file extension of the uploaded file
+    #         _, file_extension = os.path.splitext(source_img.name)
+    #         # Create a temporary file with .jpg extension
+    #         with tempfile.NamedTemporaryFile(suffix=file_extension, delete=False) as f:
+    #             temp_path = f.name
+    #         # Save the uploaded image to this temporary file
+    #         image.save(temp_path)                
+            
+    #         st.image(source_img, caption='Uploaded Image',
+    #                  use_column_width=True)
     with col1:
         if source_img is None:
             default_image_path = str(settings.DEFAULT_IMAGE)
@@ -63,17 +81,28 @@ if mlmodel_radio == 'Detection':
             st.image(default_image_path, caption='Default Image',
                      use_column_width=True)
         else:
+            Image.MAX_IMAGE_PIXELS = None
             image = PIL.Image.open(source_img)
             # Get the file extension of the uploaded file
             _, file_extension = os.path.splitext(source_img.name)
-            # Create a temporary file with .jpg extension
-            with tempfile.NamedTemporaryFile(suffix=file_extension, delete=False) as f:
-                temp_path = f.name
-            # Save the uploaded image to this temporary file
-            image.save(temp_path)                
             
-            st.image(source_img, caption='Uploaded Image',
-                     use_column_width=True)
+            if file_extension.lower() == '.tif':
+                
+                img_chunk_files, width, height = helper.split_tif_image(source_img)
+                # Display the image chunk
+                helper.navigate(img_chunk_files)                                  
+             
+                
+                
+            else:
+                # Create a temporary file with .jpg extension
+                with tempfile.NamedTemporaryFile(suffix=file_extension, delete=False) as f:
+                    temp_path = f.name
+                # Save the uploaded image to this temporary file
+                image.save(temp_path)                
+                
+                st.image(source_img, caption='Uploaded Image',
+                        use_column_width=True)
             
     
 
@@ -84,20 +113,36 @@ if mlmodel_radio == 'Detection':
             st.image(default_detected_image_path, caption='Detected Image',
                      use_column_width=True)
         else:
-            with torch.no_grad():
-                res = helper.inference(temp_path,conf,source_img)
-                os.unlink(temp_path)
-                boxes = res[0].boxes
-                res_plotted = res[0].plot()[:, :, ::-1]
-                st.image(res_plotted, caption='Detected Image',
-                            use_column_width=True)
-        
-                No_crocs = res[0].boxes.shape[0]
-                st.write("Number of Crocodiles",No_crocs)               
+            
+            if file_extension.lower() == '.tif':
+                st.markdown("<br>", unsafe_allow_html=True)
+                st.markdown("<br>", unsafe_allow_html=True)
+                helper.display_inference_grid(img_chunk_files,conf,source_img)
                 
+                if st.button('Save Image'):
+                    processed_chunk_files = helper.process_chunks_through_yolo(img_chunk_files,conf)
+                    # Stitch the processed chunks back together to form the final image
+                    final_image = helper.stitch_processed_chunks_together(processed_chunk_files,width, height)
+                    # Save the final image
+                    final_image.save('final_image.jpg', 'JPEG')
+                # Call the function after all your operations
+                helper.delete_temp_files(img_chunk_files)
+            else:                               
+                
+                with torch.no_grad():
+                    res = helper.inference(temp_path,conf,source_img)
+                    os.unlink(temp_path)
+                    boxes = res[0].boxes
+                    res_plotted = res[0].plot()[:, :, ::-1]
+                    st.image(res_plotted, caption='Detected Image',
+                                use_column_width=True)
+            
+                    No_crocs = res[0].boxes.shape[0]
+                    st.write("Number of Crocodiles",No_crocs)               
+                    
 
                 
-if mlmodel_radio == 'Individual Detection (Pending)':
+if mlmodel_radio == 'Individual Detection':
     # Get list of all subdirectories
     main_dir = settings.IMAGE_SEGMENTS
     subdirs = [subdir for subdir in os.listdir(main_dir) if os.path.isdir(os.path.join(main_dir, subdir))]
@@ -112,15 +157,27 @@ if mlmodel_radio == 'Individual Detection (Pending)':
 
     # Dropdown to select the image
     selected_image = st.selectbox('Select an image', image_files)
+    
+    col1, col2 = st.columns(2)
+    with col1: 
+        # Display the selected image
+        if selected_image:
+            image_path = os.path.join(image_dir, selected_image)
+            image = Image.open(image_path)
+            st.image(image, caption=selected_image)
+    
 
-    # Display the selected image
-    if selected_image:
-        image_path = os.path.join(image_dir, selected_image)
-        image = Image.open(image_path)
-        st.image(image, caption=selected_image)
+        if st.button("Estimate Pose"):
+            with col2:
+                #run pose estimation
+                labels = helper.sleap_predictor(image_path)
+                # Check match with database
+                # Show measurements
+                key_points= helper.key_table(labels)
+                # Display the table
+                st.table(key_points)
+               
 
-    if st.button("Identify!"):
-        helper.sleap_predictor(image_path)
         
 
     
@@ -133,9 +190,13 @@ if 'counter' not in st.session_state:
     st.session_state['counter'] = 0
 
 
- 
+st.markdown("""---""")
 
+st.markdown('## Individual Identification with database')
 
+## Show data base statistics. 
+## See images within the database
+## un cross check with database.
 
     
 # Check if an image has been uploaded
@@ -163,7 +224,7 @@ if source_img is not None:
     # Increment the counter
     st.session_state['counter'] += 1
 
-    edited_df = st.experimental_data_editor(st.session_state['dataframe'], use_container_width=True,num_rows= "dynamic")
+    edited_df = st.data_editor(st.session_state['dataframe'], use_container_width=True,num_rows= "dynamic")
 
     @st.cache_data
     def convert_df(df):
