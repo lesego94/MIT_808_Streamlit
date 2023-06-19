@@ -58,14 +58,14 @@ While YOLOv8 and SLEAP are highly powerful and versatile tools, there are a few 
 2. Once an image is uploaded, begin with the "detection" task. Set the detection confidence using the slider, default is 60%.
    <img src="image-1.png" alt="Alt text" width="200"/>
 
-3. Inference is done automatically once an image is uploaded, crocodiles are detected, and the number there of displayed.
+3. Inference is done automatically once an image is uploaded, crocodiles are detected, and the number thereof displayed.
  <img src="image.png" alt="Alt text" width="400"/>
 4. Clicking "Add row" will pull metadata from the uploaded image and add it to the editable table.
 5. User can remove the image, and do inference on additional images, and compile the table. Once complete, the table can be downloaded as a csv file for further analysis.
 6. .tif files are large and handled differently. The file is split into several smaller images, but only a subsection is displayed on the dashboard.
  <img src="image-2.png" alt="Alt text" width="400"/>
-7. Using the control buttons, the user can move across the large tif file. On the left hand side is the origian file, and on the right hand side is the images with detected crocodiles.
+7. Using the control buttons, the user can move across the large tif file. On the left-hand side is the original file, and on the right-hand side are the images with detected crocodiles.
 8. Pressing the **save Image** button will save the full image file as a .jpg and a .tif to the following directory: ~/lib/Output/
-9. Switching to the experimental **Indvidual Detection** task. The user can select from the list of crocodiles detected  obtained the earlier detection task from the drop down list. 
+9. Switching to the experimental **Individual Detection** task. The user can select from the list of crocodiles detected  obtained from the earlier detection task from the drop-down list. 
 10. The **Estimate Pose** button will run a pose estimation on the image, and the results are tabulated.
 <img src="image-3.png" alt="Alt text" width="400"/>
