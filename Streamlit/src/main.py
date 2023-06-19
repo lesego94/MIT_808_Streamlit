@@ -56,24 +56,7 @@ if mlmodel_radio == 'Detection':
         "Choose an image...", type=("jpg", "jpeg", "png", 'bmp', 'webp','tif'))
     col1, col2 = st.columns(2) 
 
-    # with col1:
-    #     if source_img is None:
-    #         default_image_path = str(settings.DEFAULT_IMAGE)
-    #         image = PIL.Image.open(default_image_path)
-    #         st.image(default_image_path, caption='Default Image',
-    #                  use_column_width=True)
-    #     else:
-    #         image = PIL.Image.open(source_img)
-    #         # Get the file extension of the uploaded file
-    #         _, file_extension = os.path.splitext(source_img.name)
-    #         # Create a temporary file with .jpg extension
-    #         with tempfile.NamedTemporaryFile(suffix=file_extension, delete=False) as f:
-    #             temp_path = f.name
-    #         # Save the uploaded image to this temporary file
-    #         image.save(temp_path)                
-            
-    #         st.image(source_img, caption='Uploaded Image',
-    #                  use_column_width=True)
+
     with col1:
         if source_img is None:
             default_image_path = str(settings.DEFAULT_IMAGE)
@@ -84,28 +67,25 @@ if mlmodel_radio == 'Detection':
             Image.MAX_IMAGE_PIXELS = None
             image = PIL.Image.open(source_img)
             # Get the file extension of the uploaded file
-            _, file_extension = os.path.splitext(source_img.name)
+            upload_name, file_extension = os.path.splitext(source_img.name)
             
             if file_extension.lower() == '.tif':
                 
                 img_chunk_files, width, height = helper.split_tif_image(source_img)
                 # Display the image chunk
-                helper.navigate(img_chunk_files)                                  
-             
-                
-                
+                helper.navigate(img_chunk_files)                                
+                             
             else:
                 # Create a temporary file with .jpg extension
                 with tempfile.NamedTemporaryFile(suffix=file_extension, delete=False) as f:
                     temp_path = f.name
                 # Save the uploaded image to this temporary file
                 image.save(temp_path)                
-                
+                #display the image
                 st.image(source_img, caption='Uploaded Image',
                         use_column_width=True)
             
     
-
     with col2:
         if source_img is None:
             default_detected_image_path = str(settings.DEFAULT_DETECT_IMAGE)
@@ -115,16 +95,21 @@ if mlmodel_radio == 'Detection':
         else:
             
             if file_extension.lower() == '.tif':
-                st.markdown("<br>", unsafe_allow_html=True)
-                st.markdown("<br>", unsafe_allow_html=True)
+                st.write("#")
+                st.write("#")
+                st.write("#")
                 helper.display_inference_grid(img_chunk_files,conf,source_img)
-                
+
                 if st.button('Save Image'):
-                    processed_chunk_files = helper.process_chunks_through_yolo(img_chunk_files,conf)
+                    processed_chunk_files = helper.process_chunks_through_yolo(img_chunk_files,conf,source_img)
                     # Stitch the processed chunks back together to form the final image
                     final_image = helper.stitch_processed_chunks_together(processed_chunk_files,width, height)
-                    # Save the final image
-                    final_image.save('final_image.jpg', 'JPEG')
+                    # Save the final image as a jpg
+                    file_path_jpg = os.path.join(settings.PROCESSED_IMAGE, f'{upload_name}.jpg')
+                    final_image.save(file_path_jpg, 'JPEG')
+                    # Save the image as a TIFF too
+                    file_path_tff = os.path.join(settings.PROCESSED_IMAGE, f'{upload_name}.tiff')
+                    helper.copy_metadata_and_convert_to_tiff(source_img)
                 # Call the function after all your operations
                 helper.delete_temp_files(img_chunk_files)
             else:                               
@@ -171,16 +156,13 @@ if mlmodel_radio == 'Individual Detection':
             with col2:
                 #run pose estimation
                 labels = helper.sleap_predictor(image_path)
-                # Check match with database
+                
                 # Show measurements
                 key_points= helper.key_table(labels)
                 # Display the table
                 st.table(key_points)
                
 
-        
-
-    
  # Initialize the dataframe
 df = pd.DataFrame(columns=['ID','Date','Image', 'Time', 'Latitude', 'Longitude'])
    
@@ -189,14 +171,6 @@ if 'dataframe' not in st.session_state:
 if 'counter' not in st.session_state:
     st.session_state['counter'] = 0
 
-
-st.markdown("""---""")
-
-st.markdown('## Individual Identification with database')
-
-## Show data base statistics. 
-## See images within the database
-## un cross check with database.
 
     
 # Check if an image has been uploaded
