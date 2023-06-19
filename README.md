@@ -56,7 +56,8 @@ While YOLOv8 and SLEAP are highly powerful and versatile tools, there are a few 
 
 1. Upload an image in any of the following formats: jpg, jpeg, png, bmp, webp,tif.
 2. Once an image is uploaded, begin with the "detection" task. Set the detection confidence using the slider, default is 60%.
-   <img src="image-1.png" alt="Alt text" width="200"/>
+
+<img src="image-1.png" alt="Alt text" width="200"/>
 
 3. Inference is done automatically once an image is uploaded, crocodiles are detected, and the number thereof displayed.
  <img src="image.png" alt="Alt text" width="400"/>
