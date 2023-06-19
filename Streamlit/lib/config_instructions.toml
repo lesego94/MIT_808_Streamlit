@@ -1,0 +1,4 @@
+[Individual_Detection]
+how_to_ID = """
+In this section, the detected keypoints will be compared to the Individual in 
+the database directory ('./data/Database/').
