@@ -2,6 +2,7 @@ import datetime
 import cv2
 import os
 import torch
+import numpy as np
 import pandas as pd
 import streamlit as st
 from ultralytics import YOLO
@@ -112,14 +113,6 @@ def sleap_predictor(image_path):
         
     return labels
 
-def key_table(labels):
-    instance = labels[0][0]
-    pts = instance.numpy()
-    Pose_table = pd.DataFrame({'Key-Points': ['Snout', 'UB', 'MB', 'LB', 'UBL', 'UBR', 'LBL', 'LBR'],
-                        'x-cord': [pts[0][0],pts[1][0],pts[2][0],pts[3][0],pts[4][0],pts[5][0],pts[6][0],pts[7][0]],
-                        'y-cord': [pts[0][1],pts[1][1],pts[2][1],pts[3][1],pts[4][1],pts[5][1],pts[6][1],pts[7][1]]}).round(1)
-    return Pose_table
-        
         
 
 def split_tif_image(source_img, desired_size=640):
@@ -261,14 +254,14 @@ def inference_2(img_path, conf, uploaded_file):
     # Return the path to the temp file
     return f.name
 
-def process_chunks_through_yolo(img_chunk_files, conf):
+def process_chunks_through_yolo(img_chunk_files, conf,source_img):
     processed_chunk_files = []
 
     for i, row_chunk_files in enumerate(img_chunk_files):
         processed_row_chunk_files = []
         for j, chunk_file in enumerate(row_chunk_files):
             with torch.no_grad():
-                res = inference2(chunk_file, conf)
+                res = inference2(chunk_file, conf,source_img)
             res_plotted = res[0].plot()[:, :, ::-1]
 
             # Save the processed image chunk to a temporary file
@@ -281,10 +274,10 @@ def process_chunks_through_yolo(img_chunk_files, conf):
     return processed_chunk_files
 
 
-def inference2(image,conf):   
-
+def inference2(image,conf,uploaded_file):   
+    save_crop = Check_newfile(uploaded_file) 
     model = load_model(settings.SEGMENTATION_MODEL)
-    res = model.predict(source = image,conf=conf, project = settings.IMAGE_SEGMENTS,save_crop =True)
+    res = model.predict(source = image,conf=conf, project = settings.IMAGE_SEGMENTS,save_crop =save_crop)
     return res
 
 
@@ -297,3 +290,25 @@ def stitch_processed_chunks_together(processed_chunk_files, width, height):
             stitched_image.paste(chunk_image, (j * chunk_image.width, i * chunk_image.height))
 
     return stitched_image
+
+
+def copy_metadata_and_convert_to_tiff(source_img):
+    upload_name, file_extension = os.path.splitext(source_img.name)
+
+    with tempfile.NamedTemporaryFile(suffix=".tif", delete=False) as f:
+        f.write(source_img.getvalue())  # Use getvalue instead of read
+        f.flush()  # Make sure all data is written to disk
+        original_tiff_path = f.name
+    
+    jpg_path = os.path.join(settings.PROCESSED_IMAGE, f'{upload_name}.jpg')
+    with Image.open(jpg_path) as img:
+        output_tiff_path = os.path.join(settings.PROCESSED_IMAGE, f'{upload_name}.tif')
+        img.save(output_tiff_path, "TIFF")
+
+    os.unlink(original_tiff_path)
+
+
+
+def add_vertical_space(n):
+    for _ in range(n):
+        st.write('\n')
