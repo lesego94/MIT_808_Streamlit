@@ -49,7 +49,7 @@ While YOLOv8 and SLEAP are highly powerful and versatile tools, there are a few 
 ## Installation
 
 1. To install on a Windows device clone this repo to you local computer.
-2. Ensure that Python version 3.9 is installed on your system.
+2. Ensure that Python version 3.8 is installed on your system.
 3. Run the **start_app.bat** file, this fill will install all the required dependencies if they are not installed already, and then launch the dashboard.
 
 ## Dashboard Usage
